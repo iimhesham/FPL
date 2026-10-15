@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FPL Squad Planner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#eef2ef; --card:#fff; --ink:#12201a; --mute:#66756c; --line:#dbe3de;
+  --accent:#1f6f43; --accent-ink:#fff; --warn:#c2410c; --bad:#b91c1c;
+  --d1:#2ea36b; --d2:#7ccf9f; --d3:#d5dbd6; --d4:#f0a24b; --d5:#d6453d;
+  --d1t:#fff; --d2t:#0d2a1b; --d3t:#2a352e; --d4t:#3a2208; --d5t:#fff;
+  --head:"Bricolage Grotesque",system-ui,sans-serif; --body:Inter,system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0f1713; --card:#17211b; --ink:#e8f0ea; --mute:#8fa196; --line:#253229;
+    --accent:#4cc28a; --accent-ink:#06210f; --d3:#2c3a31; --d3t:#cfdad2}
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.4 var(--body);
+  padding:env(safe-area-inset-top,0) 0 calc(88px + env(safe-area-inset-bottom,0))}
+.wrap{max-width:640px;margin:0 auto;padding:0 14px}
+header{padding:18px 0 10px}
+h1{font:800 24px/1.1 var(--head);margin:0;letter-spacing:-.01em}
+.sub{color:var(--mute);font-size:13px;margin-top:4px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 6px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.stat b{display:block;font:700 20px/1.1 var(--head)}
+.stat span{font-size:12px;color:var(--mute)}
+.stat.neg b{color:var(--bad)}
+.ft{display:flex;align-items:center;gap:8px}
+.ft button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;line-height:1}
+h2{font:700 15px/1 var(--head);margin:18px 2px 8px;color:var(--mute)}
+.list{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.row{display:flex;align-items:center;gap:10px;width:100%;padding:10px 12px;border:0;border-top:1px solid var(--line);
+  background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.row:first-child{border-top:0}
+.row:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.who{flex:1;min-width:0}
+.nm{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meta{font-size:12px;color:var(--mute)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;background:var(--d1)}
+.dot.d{background:var(--d4)} .dot.i,.dot.s{background:var(--d5)}
+.fx{display:flex;gap:3px}
+.fx .c{display:flex;flex-direction:column;gap:2px}
+.chip{min-width:36px;padding:3px 2px;border-radius:6px;text-align:center;font-size:11px;font-weight:600;line-height:1.1}
+.chip small{display:block;font-weight:500;opacity:.8;font-size:9px}
+.d1{background:var(--d1);color:var(--d1t)} .d2{background:var(--d2);color:var(--d2t)} .d3{background:var(--d3);color:var(--d3t)}
+.d4{background:var(--d4);color:var(--d4t)} .d5{background:var(--d5);color:var(--d5t)} .d0{background:none;color:var(--mute)}
+.new{border-left:3px solid var(--accent);padding-left:9px}
+.empty{color:var(--mute);font-style:italic}
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
+  padding:10px 14px calc(10px + env(safe-area-inset-bottom,0))}
+.bar .in{max-width:640px;margin:0 auto;display:flex;gap:8px}
+.btn{flex:1;padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:600 15px var(--body);cursor:pointer}
+.btn.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.msg{padding:40px 14px;text-align:center;color:var(--mute)}
+.warn{color:var(--warn);font-size:13px;margin:6px 2px}
+/* sheet */
+.shade{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none}
+.shade.on{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-height:88vh;background:var(--bg);border-radius:18px 18px 0 0;
+  display:none;flex-direction:column;padding-bottom:env(safe-area-inset-bottom,0)}
+.sheet.on{display:flex;animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.sheet.on{animation:none}}
+.sh-top{padding:14px 14px 8px;display:flex;flex-direction:column;gap:8px;max-width:640px;width:100%;margin:0 auto}
+.sh-top .t{display:flex;justify-content:space-between;align-items:baseline}
+.sh-top .t b{font:700 17px var(--head)}
+.x{border:0;background:none;color:var(--mute);font-size:14px;padding:4px}
+.ctl{display:flex;gap:8px}
+.ctl input,.ctl select{flex:1;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:15px var(--body);min-width:0}
+.ctl select{flex:0 0 120px}
+.sh-list{overflow:auto;max-width:640px;width:100%;margin:0 auto;padding:0 14px 14px}
+.row.off{opacity:.4;cursor:not-allowed}
+.why{font-size:11px;color:var(--warn)}
+.price{font:700 14px var(--head);min-width:40px;text-align:right}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="msg">Loading data…</div></div>
+<div class="bar" id="bar" hidden><div class="in">
+  <button class="btn" id="reset">Reset</button>
+  <button class="btn p" id="copy">Copy squad</button>
+</div></div>
+<div class="shade" id="shade"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true">
+  <div class="sh-top">
+    <div class="t"><b id="shT"></b><button class="x" id="shX">Close</button></div>
+    <div class="ctl">
+      <input id="q" type="search" placeholder="Search player" autocomplete="off">
+      <select id="sort" aria-label="Sort by">
+        <option value="f">Form</option><option value="pts">Points</option>
+        <option value="c">Price</option><option value="s">Owned %</option><option value="fx">Fixtures</option>
+      </select>
+    </div>
+  </div>
+  <div class="sh-list" id="shL"></div>
+</div>
+<script>
+const POS={1:"Goalkeepers",2:"Defenders",3:"Midfielders",4:"Forwards"};
+const SLOTS=[1,1,2,2,2,2,2,3,3,3,3,3,4,4,4];
+const KEY="fpl-draft-v1";
+let D,P={},orig=[],squad=[],ft=1,open=-1;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function order(ids){
+  const out=Array(15).fill(null),used={};
+  ids.forEach(id=>{const p=P[id];if(!p)return;
+    for(let i=0;i<15;i++){if(SLOTS[i]===p.p&&out[i]===null){out[i]=id;break}}});
+  return out;
+}
+const total=()=>D.my?(D.my.value+D.my.bank)/10:100;
+const cost=()=>squad.reduce((s,id)=>s+(id?P[id].c:0),0);
+const incoming=()=>squad.filter(id=>id&&!orig.includes(id));
+const outgoing=()=>orig.filter(id=>id&&!squad.includes(id));
+const hits=()=>D.my?Math.max(0,incoming().length-ft)*4:0;
+
+function fxFor(team,gw){return D.fixtures[team].filter(f=>f[0]===gw)}
+function chips(team,n=5){
+  return '<div class="fx">'+D.gws.slice(0,n).map(gw=>{
+    const f=fxFor(team,gw);
+    if(!f.length)return '<div class="c"><div class="chip d0">–</div></div>';
+    return '<div class="c">'+f.map(x=>`<div class="chip d${x[3]}">${x[1]}<small>${x[2]?"H":"A"}</small></div>`).join("")+'</div>';
+  }).join("")+'</div>';
+}
+function ease(team,n=5){
+  const f=D.gws.slice(0,n).flatMap(g=>fxFor(team,g));
+  return f.length?f.reduce((s,x)=>s+x[3],0)/f.length:6;
+}
+function dot(p){return `<span class="dot ${p.st==="a"?"":p.st==="d"?"d":p.st==="i"||p.st==="s"?"i":"d"}"></span>`}
+
+function render(){
+  const left=total()-cost(), n=incoming().length, h=hits();
+  const filled=squad.filter(Boolean).length;
+  let html=`<header><h1>${D.my?esc(D.my.name):"FPL Squad Planner"}</h1>
+  <div class="sub">Gameweek ${D.gw} · updated ${ago(D.updated)}</div></header>
+  <div class="stats">
+    <div class="stat ${left<0?"neg":""}"><b>£${left.toFixed(1)}m</b><span>In the bank</span></div>
+    <div class="stat ${h?"neg":""}"><b>${n}${D.my?` · ${h?"-"+h:"0"}`:""}</b><span>${D.my?"Transfers · hit":"Players changed"}</span></div>
+    <div class="stat"><div class="ft"><button id="m" aria-label="Fewer free transfers">−</button><b>${ft}</b><button id="pl" aria-label="More free transfers">+</button></div><span>Free transfers</span></div>
+  </div>`;
+  if(left<0)html+=`<div class="warn">Over budget by £${(-left).toFixed(1)}m.</div>`;
+  const clubs={};squad.forEach(id=>{if(id){const t=P[id].t;clubs[t]=(clubs[t]||0)+1}});
+  Object.keys(clubs).filter(t=>clubs[t]>3).forEach(t=>html+=`<div class="warn">More than 3 players from ${esc(D.teams[t].n)}.</div>`);
+  if(!D.my)html+=`<div class="warn">No team loaded. Set your team_id in config.json to start from your current squad.</div>`;
+  [1,2,3,4].forEach(pos=>{
+    html+=`<h2>${POS[pos]}</h2><div class="list">`;
+    SLOTS.forEach((sp,i)=>{
+      if(sp!==pos)return;
+      const id=squad[i],p=id&&P[id],isNew=id&&!orig.includes(id);
+      html+=`<button class="row ${isNew?"new":""}" data-i="${i}">`+(p
+        ?`<div class="who"><div class="nm">${dot(p)}${esc(p.n)}</div><div class="meta">${D.teams[p.t].s} · £${p.c.toFixed(1)}m · form ${p.f}</div></div>${chips(p.t)}`
+        :`<div class="who empty">Pick a player</div>`)+`</button>`;
+    });
+    html+="</div>";
+  });
+  $("#app").innerHTML=html;$("#bar").hidden=false;
+  $("#m").onclick=()=>{ft=Math.max(0,ft-1);render()};
+  $("#pl").onclick=()=>{ft=Math.min(5,ft+1);render()};
+  document.querySelectorAll(".row[data-i]").forEach(b=>b.onclick=()=>openSheet(+b.dataset.i));
+  try{localStorage.setItem(KEY,JSON.stringify({gw:D.gw,squad,ft}))}catch(e){}
+}
+function ago(iso){
+  const m=Math.round((Date.now()-new Date(iso))/60000);
+  return m<2?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago";
+}
+
+function openSheet(i){
+  open=i;$("#shT").textContent="Choose a "+POS[SLOTS[i]].toLowerCase().replace(/s$/,"");
+  $("#q").value="";list();$("#shade").classList.add("on");$("#sheet").classList.add("on");
+}
+function closeSheet(){open=-1;$("#shade").classList.remove("on");$("#sheet").classList.remove("on")}
+function list(){
+  if(open<0)return;
+  const pos=SLOTS[open],cur=squad[open],q=$("#q").value.trim().toLowerCase(),sort=$("#sort").value;
+  const base=cost()-(cur?P[cur].c:0);
+  const clubs={};squad.forEach((id,k)=>{if(id&&k!==open){const t=P[id].t;clubs[t]=(clubs[t]||0)+1}});
+  let arr=D.players.filter(p=>p.p===pos&&(!q||p.n.toLowerCase().includes(q)||D.teams[p.t].s.toLowerCase()===q||D.teams[p.t].n.toLowerCase().includes(q)));
+  arr.sort((a,b)=>sort==="fx"?ease(a.t)-ease(b.t)||b.f-a.f:b[sort]-a[sort]);
+  $("#shL").innerHTML='<div class="list">'+arr.slice(0,60).map(p=>{
+    let why="";
+    if(squad.includes(p.id)&&p.id!==cur)why="Already in your squad";
+    else if(base+p.c>total()+1e-9)why="Over budget";
+    else if((clubs[p.t]||0)>=3)why="3 players from this club already";
+    return `<button class="row ${why?"off":""}" data-id="${p.id}" ${why?"disabled":""}>
+      <div class="who"><div class="nm">${dot(p)}${esc(p.n)}</div>
+      <div class="meta">${D.teams[p.t].s} · form ${p.f} · ${p.pts} pts · ${p.s}%</div>
+      ${why?`<div class="why">${why}</div>`:p.nw?`<div class="why">${esc(p.nw)}</div>`:""}</div>
+      ${chips(p.t)}<div class="price">£${p.c.toFixed(1)}</div></button>`}).join("")+(arr.length?"":'<div class="msg">No players match.</div>')+"</div>";
+  document.querySelectorAll("#shL .row[data-id]").forEach(b=>b.onclick=()=>{squad[open]=+b.dataset.id;closeSheet();render()});
+}
+
+function summary(){
+  const L=ids=>ids.filter(Boolean).map(id=>P[id].n).join(", ");
+  let t=`GW${D.gw} squad\n`;
+  [1,2,3,4].forEach(pos=>t+=`${POS[pos]}: ${L(squad.filter((id,i)=>SLOTS[i]===pos))}\n`);
+  const o=outgoing(),n=incoming();
+  if(o.length)t+=`\nTransfers (${n.length}, hit -${hits()}):\n`+o.map((id,k)=>`${P[id].n} → ${n[k]?P[n[k]].n:"?"}`).join("\n");
+  return t;
+}
+
+async function init(){
+  try{D=await (await fetch("data/data.json?"+Date.now())).json()}
+  catch(e){$("#app").innerHTML='<div class="msg">No data yet. Run the “Update FPL data” workflow once in the Actions tab, then reload.</div>';return}
+  D.players.forEach(p=>P[p.id]=p);
+  orig=D.my?order(D.my.picks):Array(15).fill(null);
+  squad=orig.slice();
+  try{const s=JSON.parse(localStorage.getItem(KEY)||"null");
+    if(s&&s.gw===D.gw&&s.squad.length===15&&s.squad.every(id=>id===null||P[id])){squad=s.squad;ft=s.ft}}catch(e){}
+  render();
+}
+$("#shade").onclick=closeSheet;$("#shX").onclick=closeSheet;
+$("#q").oninput=list;$("#sort").onchange=list;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeSheet()});
+$("#reset").onclick=()=>{squad=orig.slice();render()};
+$("#copy").onclick=async e=>{
+  const b=e.target,t=summary();
+  try{await navigator.clipboard.writeText(t);b.textContent="Copied";setTimeout(()=>b.textContent="Copy squad",1500)}
+  catch(err){prompt("Copy your squad:",t)}
+};
+init();
+</script>
+</body>
+</html>
