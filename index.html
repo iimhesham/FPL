@@ -35,6 +35,8 @@ button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline
 header{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;padding:12px 4px 8px}
 header>div:first-child{min-width:0}
 h1{font:700 26px/1 var(--disp);margin:0;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sub a{color:var(--accent);font-weight:600;text-decoration:none}
+.sub .old{color:var(--warn);font-weight:600}
 .sub{color:var(--mute);font-size:13px;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .segw{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
 .seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:2px}
@@ -172,6 +174,10 @@ function ago(iso){
   const m=Math.round((Date.now()-new Date(iso))/60000);
   return m<2?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago";
 }
+function runUrl(){
+  const r=location.pathname.split("/")[1];
+  return location.hostname.endsWith("github.io")&&r?`https://github.com/${location.hostname.split(".")[0]}/${r}/actions/workflows/update.yml`:"";
+}
 function fit(){
   document.querySelectorAll(".pc .nm").forEach(el=>{
     let s=15;el.style.fontSize=s+"px";
@@ -182,7 +188,7 @@ function fit(){
 function render(){
   const left=total()-cost(), n=incoming().length, h=hits();
   let html=`<header><div><h1>${D.my?esc(D.my.name):"FPL Squad Planner"}</h1>
-    <div class="sub">GW${D.gw} · ${ago(D.updated)}</div></div>
+    <div class="sub"><span class="${(Date.now()-new Date(D.updated))/6e4>120?"old":""}">GW${D.gw} · ${ago(D.updated)}</span>${runUrl()?` · <a href="${runUrl()}" target="_blank" rel="noopener">Refresh</a>`:""}</div></div>
     <div class="segw">Next<div class="seg" role="group" aria-label="Number of upcoming fixtures shown">${[2,3,5].map(k=>`<button data-n="${k}" class="${k===nfx?"on":""}">${k}</button>`).join("")}</div></div></header>
   <div class="ribbon">
     <div class="rb ${left<0?"neg":""}"><b>£${left.toFixed(1)}m</b><span>In the bank</span></div>
