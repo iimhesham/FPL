@@ -13,26 +13,26 @@
   --accent:#1f6f43; --accent-ink:#fff; --warn:#c2410c; --bad:#b91c1c;
   --d1:#2ea36b; --d2:#7ccf9f; --d3:#d5dbd6; --d4:#f0a24b; --d5:#d6453d;
   --d1t:#fff; --d2t:#0d2a1b; --d3t:#2a352e; --d4t:#3a2208; --d5t:#fff;
-  --head:"Bricolage Grotesque",system-ui,sans-serif; --body:Inter,system-ui,sans-serif;
+  --p1:#d3e6da; --p2:#c8ddd0; --head:"Bricolage Grotesque",system-ui,sans-serif; --body:Inter,system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){
   :root{--bg:#0f1713; --card:#17211b; --ink:#e8f0ea; --mute:#8fa196; --line:#253229;
-    --accent:#4cc28a; --accent-ink:#06210f; --d3:#2c3a31; --d3t:#cfdad2}
+    --accent:#4cc28a; --accent-ink:#06210f; --d3:#2c3a31; --d3t:#cfdad2; --p1:#12301f; --p2:#0f2a1b}
 }
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.4 var(--body);
   padding:env(safe-area-inset-top,0) 0 calc(88px + env(safe-area-inset-bottom,0))}
 .wrap{max-width:640px;margin:0 auto;padding:0 14px}
-header{padding:18px 0 10px}
-h1{font:800 24px/1.1 var(--head);margin:0;letter-spacing:-.01em}
+header{padding:14px 0 2px;display:flex;justify-content:space-between;align-items:flex-end;gap:10px}
+h1{font:800 21px/1.1 var(--head);margin:0;letter-spacing:-.01em}
 .sub{color:var(--mute);font-size:13px;margin-top:4px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 6px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
-.stat b{display:block;font:700 20px/1.1 var(--head)}
-.stat span{font-size:12px;color:var(--mute)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin:8px 0}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:7px 10px}
+.stat b{display:block;font:700 17px/1.2 var(--head)}
+.stat span{font-size:11px;color:var(--mute)}
 .stat.neg b{color:var(--bad)}
-.ft{display:flex;align-items:center;gap:8px}
+.ft{display:flex;align-items:center;justify-content:space-between;gap:6px}
 .ft button{width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;line-height:1}
 h2{font:700 15px/1 var(--head);margin:18px 2px 8px;color:var(--mute)}
 .list{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
@@ -51,7 +51,20 @@ h2{font:700 15px/1 var(--head);margin:18px 2px 8px;color:var(--mute)}
 .chip small{display:block;font-weight:500;opacity:.8;font-size:9px}
 .d1{background:var(--d1);color:var(--d1t)} .d2{background:var(--d2);color:var(--d2t)} .d3{background:var(--d3);color:var(--d3t)}
 .d4{background:var(--d4);color:var(--d4t)} .d5{background:var(--d5);color:var(--d5t)} .d0{background:none;color:var(--mute)}
-.new{border-left:3px solid var(--accent);padding-left:9px}
+.segw{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mute)}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:none;color:var(--ink);padding:5px 10px;font:600 13px var(--body)}
+.seg button.on{background:var(--accent);color:var(--accent-ink)}
+.pitch{background:repeating-linear-gradient(180deg,var(--p1) 0 52px,var(--p2) 52px 104px);border:1px solid var(--line);border-radius:16px;padding:10px 6px;display:flex;flex-direction:column;gap:10px}
+.line{display:flex;justify-content:center;gap:5px}
+.pc{flex:0 0 calc(20% - 5px);max-width:88px;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 4px 5px;text-align:center;color:inherit;font:inherit;cursor:pointer}
+.pc.new{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.pc .nm{font-size:12px}
+.pc .meta{font-size:10px;margin-bottom:4px}
+.pc .vx{display:flex;flex-direction:column;gap:2px}
+.pc .chip{min-width:0;padding:2px 0;font-size:10px}
+.pc .chip small{display:inline;margin-left:3px;font-size:9px}
+.pc .add{font-size:22px;color:var(--mute);padding:14px 0}
 .empty{color:var(--mute);font-style:italic}
 .bar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);
   padding:10px 14px calc(10px + env(safe-area-inset-bottom,0))}
@@ -105,7 +118,7 @@ h2{font:700 15px/1 var(--head);margin:18px 2px 8px;color:var(--mute)}
 const POS={1:"Goalkeepers",2:"Defenders",3:"Midfielders",4:"Forwards"};
 const SLOTS=[1,1,2,2,2,2,2,3,3,3,3,3,4,4,4];
 const KEY="fpl-draft-v1";
-let D,P={},orig=[],squad=[],ft=1,open=-1;
+let D,P={},orig=[],squad=[],ft=1,open=-1,nfx=3;
 const $=s=>document.querySelector(s);
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
@@ -129,6 +142,12 @@ function chips(team,n=5){
     return '<div class="c">'+f.map(x=>`<div class="chip d${x[3]}">${x[1]}<small>${x[2]?"H":"A"}</small></div>`).join("")+'</div>';
   }).join("")+'</div>';
 }
+function chipsV(team,n){
+  return '<div class="vx">'+D.gws.slice(0,n).map(gw=>{
+    const f=fxFor(team,gw);
+    return f.length?f.map(x=>`<div class="chip d${x[3]}">${x[1]}<small>${x[2]?"H":"A"}</small></div>`).join(""):'<div class="chip d0">–</div>';
+  }).join("")+'</div>';
+}
 function ease(team,n=5){
   const f=D.gws.slice(0,n).flatMap(g=>fxFor(team,g));
   return f.length?f.reduce((s,x)=>s+x[3],0)/f.length:6;
@@ -137,33 +156,36 @@ function dot(p){return `<span class="dot ${p.st==="a"?"":p.st==="d"?"d":p.st==="
 
 function render(){
   const left=total()-cost(), n=incoming().length, h=hits();
-  const filled=squad.filter(Boolean).length;
-  let html=`<header><h1>${D.my?esc(D.my.name):"FPL Squad Planner"}</h1>
-  <div class="sub">Gameweek ${D.gw} · updated ${ago(D.updated)}</div></header>
+  let html=`<header><div><h1>${D.my?esc(D.my.name):"FPL Squad Planner"}</h1>
+  <div class="sub">GW${D.gw} · updated ${ago(D.updated)}</div></div>
+  <div class="segw">Fixtures<div class="seg" role="group" aria-label="Fixtures shown">${[2,3,5].map(k=>`<button data-n="${k}" class="${k===nfx?"on":""}">${k}</button>`).join("")}</div></div></header>
   <div class="stats">
-    <div class="stat ${left<0?"neg":""}"><b>£${left.toFixed(1)}m</b><span>In the bank</span></div>
-    <div class="stat ${h?"neg":""}"><b>${n}${D.my?` · ${h?"-"+h:"0"}`:""}</b><span>${D.my?"Transfers · hit":"Players changed"}</span></div>
+    <div class="stat ${left<0?"neg":""}"><b>£${left.toFixed(1)}m</b><span>Bank</span></div>
+    <div class="stat ${h?"neg":""}"><b>${n}${D.my?` · ${h?"-"+h:"0"}`:""}</b><span>${D.my?"Transfers · hit":"Changed"}</span></div>
     <div class="stat"><div class="ft"><button id="m" aria-label="Fewer free transfers">−</button><b>${ft}</b><button id="pl" aria-label="More free transfers">+</button></div><span>Free transfers</span></div>
   </div>`;
   if(left<0)html+=`<div class="warn">Over budget by £${(-left).toFixed(1)}m.</div>`;
   const clubs={};squad.forEach(id=>{if(id){const t=P[id].t;clubs[t]=(clubs[t]||0)+1}});
   Object.keys(clubs).filter(t=>clubs[t]>3).forEach(t=>html+=`<div class="warn">More than 3 players from ${esc(D.teams[t].n)}.</div>`);
   if(!D.my)html+=`<div class="warn">No team loaded. Set your team_id in config.json to start from your current squad.</div>`;
+  html+='<div class="pitch">';
   [1,2,3,4].forEach(pos=>{
-    html+=`<h2>${POS[pos]}</h2><div class="list">`;
+    html+='<div class="line">';
     SLOTS.forEach((sp,i)=>{
       if(sp!==pos)return;
       const id=squad[i],p=id&&P[id],isNew=id&&!orig.includes(id);
-      html+=`<button class="row ${isNew?"new":""}" data-i="${i}">`+(p
-        ?`<div class="who"><div class="nm">${dot(p)}${esc(p.n)}</div><div class="meta">${D.teams[p.t].s} · £${p.c.toFixed(1)}m · form ${p.f}</div></div>${chips(p.t)}`
-        :`<div class="who empty">Pick a player</div>`)+`</button>`;
+      html+=`<button class="pc ${isNew?"new":""}" data-i="${i}" aria-label="Change ${POS[pos]}">`+(p
+        ?`<div class="nm">${esc(p.n)}</div><div class="meta">${dot(p)}${D.teams[p.t].s} £${p.c.toFixed(1)}</div>${chipsV(p.t,nfx)}`
+        :'<div class="add">+</div>')+'</button>';
     });
-    html+="</div>";
+    html+='</div>';
   });
+  html+='</div>';
   $("#app").innerHTML=html;$("#bar").hidden=false;
   $("#m").onclick=()=>{ft=Math.max(0,ft-1);render()};
   $("#pl").onclick=()=>{ft=Math.min(5,ft+1);render()};
-  document.querySelectorAll(".row[data-i]").forEach(b=>b.onclick=()=>openSheet(+b.dataset.i));
+  document.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{nfx=+b.dataset.n;try{localStorage.setItem("fpl-nfx",nfx)}catch(e){}render()});
+  document.querySelectorAll(".pc[data-i]").forEach(b=>b.onclick=()=>openSheet(+b.dataset.i));
   try{localStorage.setItem(KEY,JSON.stringify({gw:D.gw,squad,ft}))}catch(e){}
 }
 function ago(iso){
@@ -213,6 +235,7 @@ async function init(){
   squad=orig.slice();
   try{const s=JSON.parse(localStorage.getItem(KEY)||"null");
     if(s&&s.gw===D.gw&&s.squad.length===15&&s.squad.every(id=>id===null||P[id])){squad=s.squad;ft=s.ft}}catch(e){}
+  try{const k=+localStorage.getItem("fpl-nfx");if([2,3,5].includes(k))nfx=k}catch(e){}
   render();
 }
 $("#shade").onclick=closeSheet;$("#shX").onclick=closeSheet;
