@@ -21,7 +21,7 @@ def main():
     start = (nxt or cur)["id"]
     gws = [g for g in range(start, start + HORIZON) if g <= 38]
 
-    teams = {t["id"]: {"n": t["name"], "s": t["short_name"]} for t in boot["teams"]}
+    teams = {t["id"]: {"n": t["name"], "s": t["short_name"], "c": t["code"]} for t in boot["teams"]}
 
     fx = {tid: [] for tid in teams}
     for f in fixtures:
@@ -32,8 +32,6 @@ def main():
 
     players = []
     for e in boot["elements"]:
-        if e["status"] == "u":
-            continue
         players.append({
             "id": e["id"], "n": e["web_name"], "t": e["team"], "p": e["element_type"],
             "c": e["now_cost"] / 10, "f": float(e["form"]), "pts": e["total_points"],
@@ -54,7 +52,7 @@ def main():
                     continue
                 my = {
                     "name": entry.get("name"), "gw": ev["id"],
-                    "picks": [p["element"] for p in pk["picks"]],
+                    "picks": [{"id": p["element"], "pos": p["position"], "c": p["is_captain"], "v": p["is_vice_captain"]} for p in pk["picks"]],
                     "bank": pk["entry_history"]["bank"], "value": pk["entry_history"]["value"],
                 }
                 break
