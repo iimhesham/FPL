@@ -2,7 +2,7 @@ name: Update FPL data
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "*/15 * * * *"
   workflow_dispatch:
   push:
     branches: [main]
@@ -10,6 +10,10 @@ on:
 
 permissions:
   contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
 
 jobs:
   update:
